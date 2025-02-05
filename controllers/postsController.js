@@ -29,7 +29,13 @@ const modify = (req, res) => {
 }
 
 const destroy = (req, res) => {
-  res.send(`elimino post con id ${req.params.id}`)
+  const id = req.params.id;
+  const sql = 'DELETE FROM posts WHERE id = ?'
+
+  connection.query(sql, [id], (err) => {
+    if (err) return res.status(500).json({ error: 'eliminazione pizza fallita' })
+    res.sendStatus(204)
+  })
 }
 
 module.exports = {
