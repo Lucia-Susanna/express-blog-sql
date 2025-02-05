@@ -13,7 +13,14 @@ const index = (req, res) => {
 }
 
 const show = (req, res) => {
-  res.send(`visualizzo il post con id ${req.params.id}`)
+  const id = req.params.id;
+  const sql = 'SELECT * FROM posts WHERE id = ?'
+  connection.query(sql, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: 'query fallita' })
+    if (results.length === 0) return res.status(404).json({ error: 'Pizza non trovata' });
+    const post = results[0]
+    res.json(post)
+  })
 }
 
 const store = (req, res) => {
