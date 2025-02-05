@@ -14,12 +14,38 @@ const index = (req, res) => {
 
 const show = (req, res) => {
   const id = req.params.id;
-  const sql = 'SELECT * FROM posts WHERE id = ?'
+
+  const sql = `SELECT posts.*, tags.id AS tag_id, tags.label AS tag_label
+  FROM posts 
+  JOIN post_tag ON posts.id = post_tag.post_id 
+  JOIN tags ON tags.id = post_tag.tag_id 
+  WHERE posts.id = ?`
+
   connection.query(sql, [id], (err, results) => {
+
     if (err) return res.status(500).json({ error: 'query fallita' })
     if (results.length === 0) return res.status(404).json({ error: 'Pizza non trovata' });
-    const post = results[0]
-    res.json(post)
+    console.log(results);
+
+    // creo oggetto con info del singolo post
+    const postObj = {
+      id: results[0].id,
+      title: results[0].title,
+      content: results[0].content,
+      image: results[0].image,
+      tags: []
+    }
+
+    // ciclo results e a ogni ciclo pusho id e label dei tag nell'array vuoto di postObj
+    results.forEach(item => {
+      postObj.tags.push({
+        tag_id: item.tag_id,
+        tag_label: item.tag_label
+      })
+    })
+
+    //restituisco postObj completo di tags
+    res.json(postObj)
   })
 }
 
